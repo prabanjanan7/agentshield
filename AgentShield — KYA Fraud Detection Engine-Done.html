@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AgentShield — KYA Fraud Detection Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#090B10;--card:#111622;--line:#1E293B;--cy:#06B6D4;--tx:#F8FAFC;--mu:#94A3B8;--ok:#10B981;--wr:#F59E0B;--bd:#FF3B30;--em:#FF6B35;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "Plus Jakarta Sans",system-ui,sans-serif}
+.m{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+nav{border-right:1px solid var(--line);padding:18px 14px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.logo{font-weight:800;font-size:18px;margin-bottom:14px;display:flex;gap:8px;align-items:center}
+.logo b{color:var(--cy)}
+nav button{all:unset;cursor:pointer;padding:10px 12px;border-radius:8px;color:var(--mu);font-weight:600}
+nav button:hover{background:#0f1522;color:var(--tx)}
+nav button.on{background:#0c2a33;color:var(--cy)}
+nav button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.disc{margin-top:auto;font-size:11px;color:var(--mu);border:1px solid var(--line);border-radius:8px;padding:10px}
+main{padding:20px 26px 60px;min-width:0}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:22px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--mu)}
+.chip b{color:var(--tx);margin-left:6px}
+.btn{cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:8px;padding:9px 14px;font:600 14px inherit;font-family:inherit}
+.btn.pri{background:var(--cy);color:#04141a;border-color:var(--cy);box-shadow:0 0 22px #06b6d455}
+.btn.bad{border-color:var(--bd);color:var(--bd)}
+.btn.sm{padding:5px 10px;font-size:12px}
+h1{font-size:clamp(26px,4vw,40px);line-height:1.1;margin:0 0 10px;font-weight:800}
+h1 em{font-style:normal;color:var(--em)}
+h2{font-size:17px;margin:0 0 12px}
+.lead{color:var(--mu);max-width:62ch;margin:0 0 18px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.k{color:var(--mu);font-size:13px}.v{font-size:26px;font-weight:600;margin-top:4px}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font:600 12px "JetBrains Mono",monospace;border:1px solid}
+.ALLOW{color:var(--ok);border-color:var(--ok);background:#10b9811a}
+.STEP{color:var(--wr);border-color:var(--wr);background:#f59e0b1a}
+.BLOCK{color:var(--bd);border-color:var(--bd);background:#ff3b301a}
+.alert{border-color:var(--bd);background:radial-gradient(120% 140% at 0% 0%,#ff3b3026,transparent 60%),var(--card);display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.pipe{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:6px 0 16px}
+.node{flex:1;min-width:120px;border:1px solid var(--line);border-radius:10px;padding:12px 10px;text-align:center;font-size:12px;color:var(--mu);transition:.35s;position:relative}
+.node b{display:block;color:var(--tx);font-size:13px;margin-bottom:2px}
+.node.ok{border-color:var(--ok);box-shadow:0 0 18px #10b98144;color:var(--ok)}
+.node.warn{border-color:var(--wr);box-shadow:0 0 18px #f59e0b44;color:var(--wr)}
+.node.bad{border-color:var(--bd);box-shadow:0 0 28px #ff3b3077;background:radial-gradient(circle,#ff6b3533,transparent 70%);color:var(--bd)}
+.node.bad::after{content:"";position:absolute;right:-6px;top:-8px;bottom:-8px;width:5px;border-radius:3px;background:linear-gradient(var(--bd),var(--em))}
+.link{width:18px;height:2px;background:var(--line)}
+.row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}
+.row:last-child{border:0}
+.x{color:var(--bd)}.o{color:var(--ok)}
+label{display:block;font-size:12px;color:var(--mu);margin:10px 0 4px}
+input,select{width:100%;background:#0b0f19;border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:8px 10px;font:inherit}
+input[type=checkbox]{width:auto}input[type=range]{padding:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.tag{background:#0c2a33;color:var(--cy);border-radius:99px;padding:2px 10px;font-size:12px;cursor:pointer}
+.sc{display:grid;gap:8px;margin-bottom:10px}
+.sc button{text-align:left}
+.bar{height:8px;background:#0b0f19;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--cy)}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+th{color:var(--mu);font-weight:600}
+pre{background:#0b0f19;border:1px solid var(--line);border-radius:8px;padding:10px;overflow-x:auto;font-size:12px;margin:8px 0 0}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));right:20px;background:var(--card);border:1px solid var(--cy);padding:10px 16px;border-radius:8px;z-index:9}
+.modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:8}
+.modal .card{width:min(360px,92vw)}
+.fil{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.fil .btn.on{border-color:var(--cy);color:var(--cy)}
+.gauge{font-size:44px;font-weight:600}
+@media(max-width:760px){.app{grid-template-columns:1fr}nav{position:static;height:auto;flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}.disc,.logo{display:none}main{padding:16px 14px 60px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body><div class="app">
+<nav aria-label="Views"><div class="logo">🛡️ Agent<b>Shield</b></div>
+<button data-v="ov">Security overview</button><button data-v="sim">Attack simulator</button><button data-v="man">Agent mandates</button><button data-v="app">Approvals &amp; timeline</button><button data-v="ben">Model &amp; architecture</button>
+<div class="disc">Simulated mock banking environment. Powered by PaySim and synthetic AI-agent logs. No live bank credentials.</div></nav>
+<main><div class="top" id="top"></div><div id="main"></div></main></div>
+<div id="layer"></div>
+<script>
+const $=s=>document.querySelector(s),inr=n=>'₹'+Number(n).toLocaleString('en-IN'),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const S={v:'ov',bal:145000,blocked:20000,filter:'All',last:null,pipe:['','','',''],busy:false,
+agents:{'AGT-SHOP-01':{name:'ShopBot AI',cap:5000,m:['Amazon','Swiggy','BESCOM'],exp:'2026-12-31',on:true},
+'AGT-BILL-02':{name:'BillPay Assistant',cap:8000,m:['BESCOM','Airtel','Jio'],exp:'2026-12-31',on:true},
+'AGT-TRVL-03':{name:'TravelBooker',cap:25000,m:['IRCTC','MakeMyTrip'],exp:'2026-12-31',on:true}},
+log:[{t:'09:12:04',who:'AGT-SHOP-01',to:'Swiggy',amt:640,v:'ALLOW',s:94,l:18,r:['All checks passed']},
+{t:'09:40:51',who:'AGT-BILL-02',to:'BESCOM',amt:2150,v:'ALLOW',s:95,l:19,r:['All checks passed']},
+{t:'10:03:27',who:'AGT-SHOP-01',to:'Unknown Crypto Wallet',amt:20000,v:'BLOCK',s:12,l:22,r:['Cap breach: ₹20,000 > ₹5,000','Unverified beneficiary']}],queue:[]};
+const SC=[
+{n:'1 · Normal customer',d:'Customer → registered friend, ₹1,000',t:{who:'cust',agent:'',amt:1000,to:'Registered Friend',ver:true}},
+{n:'2 · Trusted AI agent',d:'ShopBot AI → Amazon, ₹2,000',t:{who:'agent',agent:'AGT-SHOP-01',amt:2000,to:'Amazon',ver:true}},
+{n:'3 · Suspicious beneficiary',d:'ShopBot AI → new payee, ₹3,000',t:{who:'agent',agent:'AGT-SHOP-01',amt:3000,to:'New Payee (Unapproved)',ver:false}},
+{n:'4 · Compromised agent',d:'Hijacked ShopBot → unknown wallet, ₹20,000',t:{who:'agent',agent:'AGT-SHOP-01',amt:20000,to:'Unknown Crypto Wallet',ver:false}}];
+function evaluate(t){
+ const r=[],a=S.agents[t.agent],ag=t.who==='agent';let sc=96,hard=false,cap=false;
+ const c=(k,ok,msg)=>r.push({k,ok,msg});
+ if(ag){
+  c('Agent identity',a.on,a.on?'KYA identity valid':'Agent access revoked');
+  const ex=new Date(a.exp+'T23:59:00+05:30')>new Date();c('Mandate expiry',ex,ex?'Within validity window':'Mandate expired');
+  hard=!a.on||!ex;cap=t.amt>a.cap;
+  c('Spending cap',!cap,cap?`Cap breach: ${inr(t.amt)} > ${inr(a.cap)}`:`${inr(t.amt)} within ${inr(a.cap)} cap`);
+  const w=a.m.some(m=>m.toLowerCase()===t.to.trim().toLowerCase());c('Merchant whitelist',w,w?'Approved merchant':'Not in approved list');
+  if(hard)sc-=60;if(cap)sc-=40;if(!w)sc-=14;
+ }else c('Agent identity',true,'Manual customer, no agent involved');
+ c('Beneficiary trust',t.ver,t.ver?'Registered beneficiary':'Unverified beneficiary');
+ if(!t.ver)sc-=ag?26:35;
+ const bad=r.filter(x=>!x.ok);let v='ALLOW';
+ if(hard||(cap&&!t.ver))v='BLOCK';else if(cap)v='HOLD';else if(bad.length)v='STEP';
+ sc=Math.max(3,Math.min(99,sc-Math.floor(Math.random()*4)));
+ return{v,s:sc,l:16+Math.floor(Math.random()*10),r,reasons:bad.length?bad.map(x=>x.msg):['All checks passed']};
+}
+const vn=v=>v==='STEP'?'STEP-UP AUTH':v==='ALLOW'?'ALLOW':v==='HOLD'?'HOLD':'BLOCK';
+const cls=v=>v==='HOLD'?'BLOCK':v;
+const pill=v=>`<span class="pill ${cls(v)}">${vn(v)}</span>`;
+const toast=m=>{const e=document.createElement('div');e.className='toast';e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),2200)};
+const NODES=['Agent request','KYA mandate check','XGBoost risk score','Mock bank gate'];
+const pipeHTML=()=>`<div class="pipe" id="pipe">${NODES.map((n,i)=>`<div class="node ${S.pipe[i]}"><b>${n}</b>${['Payment packet','Cap · merchant · expiry','Anomaly model','Execute or halt'][i]}</div>${i<3?'<div class="link"></div>':''}`).join('')}</div>`;
+async function fire(t){
+ if(S.busy)return;S.busy=true;S.pipe=['','','',''];S.last=null;
+ const res=evaluate(t),who=t.who==='agent'?t.agent:'Customer';
+ S.last={t,res};upd();
+ const stop=res.v==='ALLOW'?4:res.v==='STEP'?3:2,tone=res.v==='ALLOW'?'ok':res.v==='STEP'?'warn':'bad';
+ for(let i=0;i<4;i++){
+  if(i>=stop){break}
+  S.pipe[i]=(i===stop-1&&res.v!=='ALLOW')?tone:'ok';updPipe();await sleep(480);
+ }
+ if(res.v==='STEP'){S.pipe[2]='warn'}
+ S.log.unshift({t:new Date().toLocaleTimeString('en-IN',{hour12:false}),who,to:t.to,amt:t.amt,v:res.v,s:res.s,l:res.l,r:res.reasons,pend:res.v==='STEP'});
+ if(res.v==='ALLOW')S.bal-=t.amt;
+ else if(res.v==='STEP')S.queue.unshift({id:t.agent,who,to:t.to,amt:t.amt,ts:S.log[0]});
+ else{S.blocked+=t.amt}
+ S.busy=false;updPipe();upd();topbar();
+}
+function resHTML(){
+ if(!S.last)return'<p class="k">Run a scenario to inspect the decision.</p>';
+ const{t,res}=S.last,col=res.v==='ALLOW'?'var(--ok)':res.v==='STEP'?'var(--wr)':'var(--bd)';
+ const req={initiator:t.who==='agent'?'AI_AGENT':'CUSTOMER',agent_id:t.agent||null,amount_inr:t.amt,recipient:t.to,beneficiary_verified:t.ver};
+ const resp={decision_verdict:vn(res.v),kya_trust_score:res.s,latency_ms:res.l,decision_reason:res.reasons};
+ return`<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div>${pill(res.v)}<div class="gauge m" style="color:${col}">${res.s}<span class="k">/100</span></div><div class="k m">${res.l} ms inference</div></div>
+ <div style="flex:1;min-width:200px">${res.r.map(x=>`<div class="row"><span>${x.k}</span><span class="${x.ok?'o':'x'}">${x.ok?'✓':'✗'} ${esc(x.msg)}</span></div>`).join('')}</div></div>
+ <details><summary class="k" style="cursor:pointer;margin-top:10px">Raw API request / response</summary><pre class="m">POST /v1/kya/evaluate\n${esc(JSON.stringify(req,null,2))}\n\n200 OK\n${esc(JSON.stringify(resp,null,2))}</pre></details>`;
+}
+function simView(){
+ const ao=Object.entries(S.agents).map(([id,a])=>`<option value="${id}" ${a.on?'':'disabled'}>${a.name} (${id})${a.on?'':' — revoked'}</option>`).join('');
+ return`<h1>Attack simulator</h1><p class="lead">Fire a payment through the KYA gate. Decisions use the live mandates, so change a cap or revoke an agent and run again.</p>
+ <div class="grid g2"><div class="card"><h2>Scenarios</h2><div class="sc">${SC.map((s,i)=>`<button class="btn" data-sc="${i}"><b>${s.n}</b><br><span class="k">${s.d}</span></button>`).join('')}</div>
+ <h2 style="margin-top:18px">Custom transaction</h2>
+ <label>Initiator</label><select id="cw"><option value="agent">AI agent</option><option value="cust">Customer</option></select>
+ <label>Agent</label><select id="ca">${ao}</select>
+ <label>Amount (₹)</label><input id="cm" type="number" min="1" value="4000">
+ <label>Merchant or beneficiary</label><input id="cr" value="Amazon">
+ <label><input id="cv" type="checkbox" checked> Registered beneficiary</label>
+ <button class="btn pri" id="cf" style="margin-top:12px">Fire transaction</button></div>
+ <div class="card"><h2>KYA interception</h2><div id="pipeBox">${pipeHTML()}</div><div id="res">${resHTML()}</div></div></div>`;
+}
+const updPipe=()=>{const e=$('#pipeBox');if(e)e.innerHTML=pipeHTML()};
+const upd=()=>{const e=$('#res');if(e)e.innerHTML=resHTML()};
+function ovView(){
+ const n=S.log.slice(0,10).reverse(),mx=Math.max(...n.map(x=>x.amt),1),active=Object.values(S.agents).filter(a=>a.on).length;
+ const rem=S.agents['AGT-SHOP-01'].cap;
+ const bars=n.map((x,i)=>{const h=Math.max(6,x.amt/mx*130),col=x.v==='ALLOW'?'#10B981':x.v==='STEP'?'#F59E0B':'#FF3B30';return`<rect x="${14+i*46}" y="${150-h}" width="30" height="${h}" rx="4" fill="${col}"/><text x="${29+i*46}" y="166" fill="#94A3B8" font-size="9" text-anchor="middle">${x.t.slice(0,5)}</text>`}).join('');
+ const bands=[['90–100',s=>s>=90],['60–89',s=>s>=60&&s<90],['30–59',s=>s>=30&&s<60],['0–29',s=>s<30]].map(([l,f])=>{const c=S.log.filter(x=>f(x.s)).length;return`<div class="row"><span class="m">${l}</span><span style="flex:1"><div class="bar" style="margin-top:7px"><i style="width:${c/S.log.length*100}%"></i></div></span><span class="m">${c}</span></div>`}).join('');
+ return`<h1>You allowed ₹5,000. Your AI agent tries <em>₹20,000.</em></h1><p class="lead">AgentShield sits between your AI agents and your bank. It checks the agent’s mandate and risk before any money moves.</p>
+ <div class="card alert"><div style="flex:1;min-width:220px"><b style="color:var(--em)">Critical: payment intercepted</b><div class="k">ShopBot AI tried ${inr(20000)} to Unknown Crypto Wallet. Cap breach and unverified beneficiary.</div></div><button class="btn bad" data-go="man">Inspect &amp; revoke</button></div>
+ <div class="grid g4"><div class="card"><div class="k">Mock account balance</div><div class="v m">${inr(S.bal)}</div></div><div class="card"><div class="k">Active AI mandates</div><div class="v m">${active}</div></div><div class="card"><div class="k">ShopBot spend cap</div><div class="v m">${inr(rem)}</div></div><div class="card"><div class="k">Unauthorized amount blocked</div><div class="v m" style="color:var(--bd)">${inr(S.blocked)}</div></div></div>
+ <div class="grid g2" style="margin-top:14px"><div class="card"><h2>Recent agent payments</h2><div class="wrap"><svg viewBox="0 0 480 172" width="100%" role="img" aria-label="Recent payments by verdict"><line x1="0" y1="150" x2="480" y2="150" stroke="#1E293B"/>${bars}</svg></div><div class="k"><span class="o">■</span> Allowed &nbsp;<span style="color:var(--wr)">■</span> Step-up &nbsp;<span class="x">■</span> Blocked</div></div>
+ <div class="card"><h2>Trust score distribution</h2>${bands}</div></div>`;
+}
+function manView(){
+ return`<h1>Agent mandates</h1><p class="lead">Set what each agent may spend. Changes apply to the simulator immediately.</p><div class="grid g4">${Object.entries(S.agents).map(([id,a])=>`<div class="card" style="${a.on?'':'border-color:var(--bd)'}"><div style="display:flex;justify-content:space-between"><b>${a.name}</b><span class="pill ${a.on?'ALLOW':'BLOCK'}">${a.on?'ACTIVE':'REVOKED'}</span></div><div class="k m">${id}</div>
+ <label>Spending cap: <span class="m">${inr(a.cap)}</span></label><input type="range" min="500" max="50000" step="500" value="${a.cap}" data-cap="${id}">
+ <label>Approved merchants</label><div class="tags">${a.m.map(m=>`<span class="tag" data-rm="${id}|${esc(m)}" title="Remove">${esc(m)} ✕</span>`).join('')||'<span class="k">None</span>'}</div>
+ <input placeholder="Add merchant, press Enter" data-add="${id}">
+ <label>Mandate expiry</label><input type="date" value="${a.exp}" data-exp="${id}">
+ <button class="btn ${a.on?'bad':'pri'}" style="margin-top:12px;width:100%" data-tg="${id}">${a.on?'Revoke access':'Restore access'}</button></div>`).join('')}</div>`;
+}
+function appView(){
+ const L=S.log.filter(x=>S.filter==='All'||cls(x.v)===S.filter||(S.filter==='BLOCK'&&x.v==='HOLD'));
+ return`<h1>Approvals &amp; timeline</h1><div class="card" style="margin-bottom:14px"><h2>Approval queue</h2>${S.queue.length?S.queue.map((q,i)=>`<div class="row" style="align-items:center"><span><b>${esc(q.who)}</b> → ${esc(q.to)} · <span class="m">${inr(q.amt)}</span></span><span><button class="btn sm pri" data-ap="${i}">Approve with 2FA OTP</button> <button class="btn sm bad" data-rj="${i}">Reject &amp; freeze agent</button></span></div>`).join(''):'<p class="k">Queue empty. Fire Scenario 3 in the simulator to add a step-up request.</p>'}</div>
+ <div class="card"><h2>Audit timeline</h2><div class="fil">${['All','ALLOW','STEP','BLOCK'].map(f=>`<button class="btn sm ${S.filter===f?'on':''}" data-f="${f}">${f==='STEP'?'STEP-UP AUTH':f==='BLOCK'?'HOLD / BLOCK':f}</button>`).join('')}</div>
+ <div class="wrap"><table><thead><tr><th>Time</th><th>Actor</th><th>Recipient</th><th>Amount</th><th>Trust</th><th>Latency</th><th>Verdict</th><th>Reason</th></tr></thead><tbody>${L.map(x=>`<tr class="m"><td>${x.t}</td><td>${esc(x.who)}</td><td>${esc(x.to)}</td><td>${inr(x.amt)}</td><td>${x.s}</td><td>${x.l} ms</td><td>${pill(x.v)}${x.mfa?' <span class="k">MFA</span>':''}</td><td style="font-family:'Plus Jakarta Sans',sans-serif">${x.r.map(esc).join('; ')}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+function benView(){
+ const M=[['Precision','96.4%'],['Recall','94.8%'],['F1-score','95.6%'],['ROC-AUC','0.987'],['Avg latency','21 ms']];
+ const F=[['Mandate cap ratio',92],['Beneficiary verification',81],['Amount deviation',68],['Merchant whitelist match',54],['Agent velocity',39]];
+ const P=['Customer web app','Mock bank','KYA mandate validation','Risk &amp; decision layer','PaySim data handling','Demo evaluation'];
+ return`<h1>Model &amp; architecture</h1><p class="lead">XGBoost and Scikit-learn risk model on PaySim plus synthetic agent sessions. Figures below are illustrative demo values, not measured results.</p>
+ <div class="grid g4">${M.map(([k,v])=>`<div class="card"><div class="k">${k}</div><div class="v m">${v}</div></div>`).join('')}</div>
+ <div class="grid g2" style="margin-top:14px"><div class="card"><h2>Feature importance</h2>${F.map(([k,v])=>`<div class="row"><span style="width:170px">${k}</span><span style="flex:1"><div class="bar" style="margin-top:7px"><i style="width:${v}%"></i></div></span><span class="m">${v/100}</span></div>`).join('')}</div>
+ <div class="card"><h2>Six-layer pipeline</h2>${P.map((p,i)=>`<div class="row"><span class="m" style="color:var(--cy)">L${i+1}</span><span style="flex:1;padding-left:12px">${p}</span></div>`).join('')}
+ <div class="tags" style="margin-top:12px">${['React','Tailwind','FastAPI','XGBoost','Recharts','Supabase','OWASP Agentic','SDG 9'].map(t=>`<span class="tag" style="cursor:default">${t}</span>`).join('')}</div></div></div>`;
+}
+function topbar(){$('#top').innerHTML=`<span class="chip">Mock balance<b class="m">${inr(S.bal)}</b></span><span class="chip">Active agents<b class="m">${Object.values(S.agents).filter(a=>a.on).length}</b></span><span class="chip">Threats blocked<b class="m">${S.log.filter(x=>x.v==='BLOCK'||x.v==='HOLD').length}</b></span><button class="btn pri" style="margin-left:auto" data-go="sim">Launch live attack simulator</button>`}
+function render(){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.v));$('#main').innerHTML=({ov:ovView,sim:simView,man:manView,app:appView,ben:benView})[S.v]();topbar()}
+const go=v=>{S.v=v;render();scrollTo(0,0)};
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-v],[data-go],[data-sc],[data-rm],[data-tg],[data-f],[data-ap],[data-rj],#cf');if(!t)return;
+ const d=t.dataset;
+ if(d.v||d.go)return go(d.v||d.go);
+ if(d.sc!==undefined)return fire(SC[d.sc].t);
+ if(t.id==='cf'){const amt=+$('#cm').value;if(!(amt>0))return toast('Enter an amount above ₹0');if($('#cw').value==='agent'&&!(S.agents[$('#ca').value]&&S.agents[$('#ca').value].on))return toast('No active agent. Restore one in Agent mandates.');return fire({who:$('#cw').value,agent:$('#ca').value,amt,to:$('#cr').value||'Unknown',ver:$('#cv').checked})}
+ if(d.rm){const[id,m]=d.rm.split('|');S.agents[id].m=S.agents[id].m.filter(x=>x!==m);render();return toast('Merchant removed')}
+ if(d.tg){const a=S.agents[d.tg];a.on=!a.on;render();return toast(a.name+(a.on?' restored':' revoked'))}
+ if(d.f){S.filter=d.f;return render()}
+ if(d.ap!==undefined)return otp(+d.ap);
+ if(d.rj!==undefined){const q=S.queue.splice(+d.rj,1)[0];if(q.id&&S.agents[q.id])S.agents[q.id].on=false;q.ts.v='BLOCK';q.ts.r=['Rejected by customer; agent frozen'];S.blocked+=q.amt;render();toast('Rejected. Agent frozen.')}
+});
+document.addEventListener('input',e=>{const d=e.target.dataset;if(d.cap){S.agents[d.cap].cap=+e.target.value;e.target.previousElementSibling.querySelector('span').textContent=inr(e.target.value)}});
+document.addEventListener('change',e=>{const d=e.target.dataset;if(d.cap)toast('Cap set to '+inr(e.target.value));if(d.exp){S.agents[d.exp].exp=e.target.value;toast('Expiry updated')}});
+document.addEventListener('keydown',e=>{const d=e.target.dataset;if(d&&d.add&&e.key==='Enter'&&e.target.value.trim()){S.agents[d.add].m.push(e.target.value.trim());render();toast('Merchant added')}});
+function otp(i){const q=S.queue[i];$('#layer').innerHTML=`<div class="modal"><div class="card"><h2>Confirm with 2FA</h2><p class="k">Approve ${inr(q.amt)} to ${esc(q.to)}. Enter any 6-digit code (demo).</p><input id="otp" class="m" inputmode="numeric" maxlength="6" placeholder="000000"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn pri" id="ok">Verify &amp; approve</button><button class="btn" id="no">Cancel</button></div></div></div>`;
+ $('#otp').focus();$('#no').onclick=()=>$('#layer').innerHTML='';
+ $('#ok').onclick=()=>{if(!/^\d{6}$/.test($('#otp').value))return toast('Enter 6 digits');S.queue.splice(i,1);q.ts.v='ALLOW';q.ts.mfa=true;q.ts.r=['Approved via 2FA OTP'];S.bal-=q.amt;$('#layer').innerHTML='';render();toast('Payment approved')}}
+render();
+</script></body></html>
